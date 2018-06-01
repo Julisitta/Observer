@@ -46,7 +46,7 @@ class Jurnaluga {
         };
 };
 
-let jasd = new Jurnaluga("PhotoBank");
+let jur = new Jurnaluga("PhotoBank");
 
 let uf1 = user1.inform.bind(user1);
 let uf2 = user2.inform.bind(user2);
@@ -55,9 +55,9 @@ let uf3 = user3.inform.bind(user3);
 obs.addSubscriber(uf1);
 obs.addSubscriber(uf2);
 obs.addSubscriber(uf3);
-obs.notification(jasd.sendNews());
+obs.notification(jur.sendNews());
 
 obs.removeSubscriber(uf3);
-obs.notification(jasd.sendNews());
+obs.notification(jur.sendNews());
 
-obs.interval(jasd.sendNews());
+obs.interval(jur.sendNews());
