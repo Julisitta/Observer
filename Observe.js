@@ -1,81 +1,63 @@
 class Observer {
     constructor() {
-    this._handlers = [];
-    this._onceHandlers = [];
+    this.handlers = [];
     }
-    addSubscriber(callback) {
-        this._handlers.push(callback);
-    }
-    once(callback) {
-        this._onceHandlers.push(callback);
-    }
-    removeSubscriber(callback) {
-        this._handlers.splice(this._handlers.indexOf(callback),1);
-        //this._handlers = this._handlers.filter(uf => uf !== callback);
-    }
-    notification(data) {
-        let handle = callback => callback(data);
-        this._handlers.forEach(handle);
-        this._onceHandlers.forEach(handle);
-        this._onceHandlers = [];
-    }
-    censure(data) {
-        let promise = new Promise((resolve, reject) => {
-            Math.random() > .5 ? resolve({}) : reject("Новость не прошла цензуру");
-        }); 
-        promise
-            .then(this.notification(data),
-                reason => console.log(reason));
-    }
-}
+    addSubscriber (callback) {
+        this.handlers.push(callback);
+    };
+    removeSubscriber (callback) {
+        this.handlers = this.handlers.filter((uf) => uf !== callback); 
+    };
+    notification (data) {
+        this.handlers.forEach(callback => callback(data));
+        
+    };
+    interval (data) {
+        let th = this.handlers;
+        let timerId = setInterval(function() {
+            th.forEach(callback => callback(data));
+      }, 2000);
+        setTimeout(function() {
+        clearInterval(timerId);
+      }, 10000);
+    };
+};
 
-class User {
+let obs = new Observer();
+
+class Users {
     constructor(name) {
         this.name = name;
-        this.binded = this.inform.bind(this);
-    }
+    };
     inform(data) {
         console.log(this.name + " get " + data);
-    }
-}
+    };
+};
+let user1 = new Users("Margo");
+let user2 = new Users("Renat");
+let user3 = new Users("Kate");
 
 class Jurnaluga {
     constructor(name) {
         this.name = name;
-    }
-    sendNews() {
-        let rnd = Math.random().toString(36).substring(2, 15);
-        return this.name + " about " + rnd;
-    }	
-	interval(observ) {
-        let timerId = setInterval(
-            () => observ.censure(this.sendNews()),
-            1000);
-        setTimeout(
-            () => clearInterval(timerId),
-            5000);
-    }	
-}
-
-let obs = new Observer();
-
-let user1 = new User("Margo");
-let user2 = new User("Renat");
-let user3 = new User("Kate");
-let user4 = new User("MarcOnce");
+        }
+     sendNews () {
+        return this.name + " about " + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10);
+        };
+};
 
 let jur = new Jurnaluga("PhotoBank");
 
-obs.addSubscriber(user1.binded);
-obs.addSubscriber(user2.binded);
-obs.addSubscriber(user3.binded);
+let uf1 = user1.inform.bind(user1);
+let uf2 = user2.inform.bind(user2);
+let uf3 = user3.inform.bind(user3);
 
-obs.censure(jur.sendNews());
+obs.addSubscriber(uf1);
+obs.addSubscriber(uf2);
+obs.addSubscriber(uf3);
+obs.notification(jur.sendNews());
 
-obs.removeSubscriber(user3.binded);
+obs.removeSubscriber(uf3);
+obs.notification(jur.sendNews());
 
-obs.censure(jur.sendNews());
-
-obs.once(user4.binded);
-
-jur.interval(obs);
+obs.interval(jur.sendNews());
